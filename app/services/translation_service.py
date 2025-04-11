@@ -1,17 +1,21 @@
 from fastapi import HTTPException
-from googletrans import Translator
+from googletrans import Translator, LANGUAGES
 
 
 class TranslationService:
     def __init__(self):
         self.translator = Translator()
 
-    def translate_to_ukrainian(self, text: str) -> dict:
+    def translate(
+        self, text: str, source_language: str = "en", target_language: str = "uk"
+    ) -> dict:
         """
-        Translate text from English to Ukrainian
+        Translate text from the specified source language to the target language.
 
         Args:
             text: Text to translate
+            source_language: Language code for the source language (default is English 'en')
+            target_language: Language code for the target language (default is Ukrainian 'uk')
 
         Returns:
             dict: Dictionary with original and translated text
@@ -22,7 +26,23 @@ class TranslationService:
                     status_code=400, detail="Input text cannot be empty."
                 )
 
-            translation = self.translator.translate(text, src="en", dest="uk")
+            # Check if source language code is valid
+            if source_language not in LANGUAGES:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Source language '{source_language}' is not supported.",
+                )
+
+            # Check if target language code is valid
+            if target_language not in LANGUAGES:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Target language '{target_language}' is not supported.",
+                )
+
+            translation = self.translator.translate(
+                text, src=source_language, dest=target_language
+            )
 
             if not translation or not translation.text:
                 raise HTTPException(status_code=500, detail="Translation failed.")

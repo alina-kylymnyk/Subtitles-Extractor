@@ -2,7 +2,10 @@ from pydantic import BaseModel
 
 
 class TranslationRequest(BaseModel):
-    text: str
+    text: str  # Text to translate
+    target_language: str = (
+        "uk"  # Default to Ukrainian, can be changed to any language code
+    )
 
 
 class TranslationResponse(BaseModel):

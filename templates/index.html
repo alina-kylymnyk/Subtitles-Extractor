@@ -4,181 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subtitles Extractor with Translator and Notes</title>
-    <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/png" href="static/favicon.png">
-  
-
-    <!-- <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-        .container {
-            display: flex;
-            width: 100%;
-            min-height: 100vh;
-        }
-        .main-content {
-            flex: 3;
-            padding: 20px;
-            border-right: 1px solid #ddd;
-            overflow-y: auto;
-        }
-        .sidebar {
-            flex: 1;
-            padding: 20px;
-            background-color: #f5f5f5;
-            min-width: 250px;
-            overflow-y: auto;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            box-sizing: border-box;
-        }
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        button {
-            padding: 8px 15px;
-            background-color: #4285f4;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-        button:hover {
-            background-color: #3367d6;
-        }
-        .subtitle-content {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            max-height: 400px;
-            overflow-y: auto;
-            background-color: #f9f9f9;
-        }
-        .download-btn {
-            margin-top: 15px;
-        }
-        .error {
-            color: red;
-        }
-        .translated-text {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #e6f4ea;
-            border-radius: 4px;
-        }
-        .vocabulary-list {
-            margin-top: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .vocabulary-item {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-        .vocabulary-item:last-child {
-            border-bottom: none;
-        }
-        h2 {
-            margin-top: 20px;
-            font-size: 1.2em;
-            color: #333;
-        }
-        .section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-        }
-        .notes-container {
-            margin-top: 15px;
-        }
-        .note-item {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 15px;
-            position: relative;
-        }
-        .note-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        .delete-btn {
-            background-color: #db4437;
-            padding: 5px 10px;
-            font-size: 0.8em;
-        }
-        .task-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        .task-text {
-            flex-grow: 1;
-            margin-left: 10px;
-        }
-        .completed {
-            text-decoration: line-through;
-            color: #888;
-        }
-        .tabs {
-            display: flex;
-            margin-bottom: 15px;
-        }
-        .tab {
-            padding: 10px 15px;
-            cursor: pointer;
-            background-color: #f1f1f1;
-            border: 1px solid #ddd;
-            border-bottom: none;
-            border-radius: 4px 4px 0 0;
-            margin-right: 5px;
-        }
-        .tab.active {
-            background-color: #fff;
-            border-bottom: 1px solid #fff;
-            margin-bottom: -1px;
-            position: relative;
-            z-index: 1;
-        }
-        .tab-content {
-            display: none;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 0 4px 4px 4px;
-        }
-        .tab-content.active {
-            display: block;
-        }
-    </style> -->
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <div class="container">
         <!-- Main content for subtitles and notes -->
         <div class="main-content">
-            <h1>Extract Subtitles from YouTube Video</h1>
+            <div class="app-header">
+                <h1>YouTube Subtitles Extractor</h1>
+                <p>Extract, translate, and take notes while learning with videos</p>
+            </div>
             
             <!-- Single form to enter video URL -->
-            <div class="form-group">
-                <form action="/process_video/" method="post">
-                    <label for="video_url">Enter YouTube Video URL:</label>
-                    <input type="text" id="video_url" name="video_url" required value="{{ video_url if video_url else '' }}">
-                    <button type="submit">Get Subtitles</button>
-                </form>
+            <div class="card">
+                <div class="form-group">
+                    <form action="/process_video/" method="post">
+                        <label for="video_url">Enter YouTube Video URL:</label>
+                        <input type="text" id="video_url" name="video_url" required value="{{ video_url if video_url else '' }}" placeholder="https://www.youtube.com/watch?v=...">
+                        <button type="submit">Extract Subtitles</button>
+                    </form>
+                </div>
             </div>
             
             {% if error_message %}
@@ -186,17 +32,19 @@
             {% endif %}
 
             {% if subtitle_text %}
-                <div class="subtitle-content">
-                    <h2>Extracted Subtitles:</h2>
-                    <p>{{ subtitle_text }}</p>
-                </div>
-                
-                <!-- Download button appears only when subtitles are available -->
-                <div class="download-btn">
-                    <form action="/download_subtitles/" method="post">
-                        <input type="hidden" name="video_url" value="{{ video_url }}">
-                        <button type="submit">Download Subtitles</button>
-                    </form>
+                <div class="card">
+                    <div class="subtitle-content">
+                        <h2>Extracted Subtitles:</h2>
+                        <p>{{ subtitle_text }}</p>
+                    </div>
+                    
+                    <!-- Download button appears only when subtitles are available -->
+                    <div class="download-btn">
+                        <form action="/download_subtitles/" method="post">
+                            <input type="hidden" name="video_url" value="{{ video_url }}">
+                            <button type="submit">Download Subtitles</button>
+                        </form>
+                    </div>
                 </div>
             {% endif %}
             
@@ -243,280 +91,86 @@
             </div>
         </div>
         
-        <!-- Sidebar for translator -->
-        <div class="sidebar">
-            <h2>English to Ukrainian Translator</h2>
-            
-            <!-- Translator form -->
-            <div class="form-group">
-                <form action="javascript:void(0);" id="translator-form">
-                    <label for="english-text">Enter English text:</label>
-                    <textarea id="english-text" name="text" required></textarea>
-                    <button type="submit" id="translate-btn">Translate</button>
-                </form>
-            </div>
-            
-            <!-- Translation result will appear here -->
-            <div id="translation-result" style="display: none;" class="translated-text">
-                <h3>Ukrainian Translation:</h3>
-                <p id="ukrainian-text"></p>
-                <button id="save-btn" style="background-color: #0f9d58;">Save to Vocabulary</button>
-            </div>
-            
-            <!-- Vocabulary section -->
-            <h2>My Vocabulary</h2>
-            <button id="refresh-vocabulary" style="background-color: #9c27b0;">Refresh Vocabulary</button>
-            <div id="vocabulary-list" class="vocabulary-list">
-                <!-- Vocabulary items will be loaded here -->
-            </div>
+       <!-- Sidebar for translator -->
+<div class="sidebar">
+    <h2>Translator</h2>
+
+    <!-- Translator form -->
+    <div class="card">
+        <div class="form-group">
+            <form action="javascript:void(0);" id="translator-form">
+                <!-- Input Language Selection -->
+                <label for="input-language">Select Input Language:</label>
+                <select id="input-language" name="input-language" required>
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="it">Italian</option>
+                    <option value="pt">Portuguese</option>
+                    <option value="ru">Russian</option>
+                    <option value="ja">Japanese</option>
+                    <option value="zh-cn">Chinese (Simplified)</option>
+                    <option value="ar">Arabic</option>
+                    <option value="hi">Hindi</option>
+                    <option value="ko">Korean</option>
+                    <option value="nl">Dutch</option>
+                    <option value="pl">Polish</option>
+                    <option value="sv">Swedish</option>
+                    <option value="tr">Turkish</option>
+                    <option value="uk">Ukrainian</option>
+                    <option value="vi">Vietnamese</option>
+                </select>
+
+                <label for="target-language">Select Target Language:</label>
+                <select id="target-language" name="target-language" required>
+                    <option value="uk">Ukrainian</option>
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="it">Italian</option>
+                    <option value="pt">Portuguese</option>
+                    <option value="ru">Russian</option>
+                    <option value="ja">Japanese</option>
+                    <option value="zh-cn">Chinese (Simplified)</option>
+                    <option value="ar">Arabic</option>
+                    <option value="hi">Hindi</option>
+                    <option value="ko">Korean</option>
+                    <option value="nl">Dutch</option>
+                    <option value="pl">Polish</option>
+                    <option value="sv">Swedish</option>
+                    <option value="tr">Turkish</option>
+                    <option value="vi">Vietnamese</option>
+                </select>
+
+                <label for="english-text">Enter text:</label>
+                <textarea id="english-text" name="text" required placeholder="Type or paste text to translate..."></textarea>
+                <button type="submit" id="translate-btn">Translate</button>
+            </form>
+        </div>
+
+        <!-- Translation result will appear here -->
+        <div id="translation-result" style="display: none;" class="translated-text">
+            <h3>Translation:</h3>
+            <p id="translated-text"></p>
+            <button id="save-btn" class="btn-success">Save to Vocabulary</button>
         </div>
     </div>
+
+    <!-- Vocabulary section -->
+    <div class="card">
+        <h2>My Vocabulary</h2>
+        <button id="refresh-vocabulary" class="btn-purple">Refresh Vocabulary</button>
+        <div id="vocabulary-list" class="vocabulary-list">
+            <!-- Vocabulary items will be loaded here -->
+        </div>
+    </div>
+</div>
+
+    </div>
     
-    <script>
-        // Function to translate text
-        document.getElementById('translator-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const text = document.getElementById('english-text').value.trim();
-            
-            if (!text) {
-                alert('Please enter some text to translate');
-                return}
-            
-            try {
-                const response = await fetch('/translate/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ text: text })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('ukrainian-text').textContent = data.translated;
-                    document.getElementById('translation-result').style.display = 'block';
-                } else {
-                    alert('Error: ' + (data.detail || 'Translation failed'));
-                }
-            } catch (error) {
-                alert('Error connecting to the server');
-                console.error(error);
-            }
-        });
-        
-        // Function to save phrase to vocabulary (using localStorage)
-        document.getElementById('save-btn').addEventListener('click', function() {
-            const englishText = document.getElementById('english-text').value.trim();
-            const ukrainianText = document.getElementById('ukrainian-text').textContent.trim();
-            
-            if (!englishText || !ukrainianText) {
-                alert('Both English and Ukrainian texts are required');
-                return;
-            }
-            
-            // Get existing vocabulary from localStorage
-            const vocabulary = JSON.parse(localStorage.getItem('vocabulary') || '[]');
-            
-            // Add new phrase
-            vocabulary.push({
-                id: Date.now(), // Use timestamp as unique ID
-                english: englishText,
-                ukrainian: ukrainianText
-            });
-            
-            // Save back to localStorage
-            localStorage.setItem('vocabulary', JSON.stringify(vocabulary));
-            
-            alert('Phrase saved to vocabulary');
-            loadVocabulary();
-        });
-        
-        // Function to load vocabulary from localStorage
-        function loadVocabulary() {
-            const vocabulary = JSON.parse(localStorage.getItem('vocabulary') || '[]');
-            const vocabularyList = document.getElementById('vocabulary-list');
-            vocabularyList.innerHTML = '';
-            
-            if (vocabulary.length === 0) {
-                vocabularyList.innerHTML = '<p>No saved phrases yet.</p>';
-                return;
-            }
-            
-            vocabulary.forEach(phrase => {
-                const item = document.createElement('div');
-                item.className = 'vocabulary-item';
-                item.innerHTML = `
-                    <strong>English:</strong> ${phrase.english}<br>
-                    <strong>Ukrainian:</strong> ${phrase.ukrainian}
-                    <button class="delete-btn" data-id="${phrase.id}" onclick="deleteVocabularyItem(${phrase.id})">Delete</button>
-                `;
-                vocabularyList.appendChild(item);
-            });
-        }
-        
-        // Function to delete vocabulary item
-        function deleteVocabularyItem(id) {
-            const vocabulary = JSON.parse(localStorage.getItem('vocabulary') || '[]');
-            const updatedVocabulary = vocabulary.filter(item => item.id !== id);
-            localStorage.setItem('vocabulary', JSON.stringify(updatedVocabulary));
-            loadVocabulary();
-        }
-        
-        // Load vocabulary on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadVocabulary();
-            loadNotes();
-            loadTasks();
-        });
-        
-        // Refresh vocabulary button
-        document.getElementById('refresh-vocabulary').addEventListener('click', loadVocabulary);
-        
-        // Tab functionality
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Remove active class from all tabs
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked tab
-                this.classList.add('active');
-                document.getElementById(this.dataset.tab + '-tab').classList.add('active');
-            });
-        });
-        
-        // Notes functionality
-        function loadNotes() {
-            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            const notesList = document.getElementById('notes-list');
-            notesList.innerHTML = '';
-            
-            if (notes.length === 0) {
-                notesList.innerHTML = '<p>No notes yet. Create one above!</p>';
-                return;
-            }
-            
-            notes.forEach((note, index) => {
-                const noteElement = document.createElement('div');
-                noteElement.className = 'note-item';
-                noteElement.innerHTML = `
-                    <h3>${note.title}</h3>
-                    <p>${note.content.replace(/\n/g, '<br>')}</p>
-                    <div class="note-controls">
-                        <button class="delete-btn" data-index="${index}">Delete</button>
-                    </div>
-                `;
-                notesList.appendChild(noteElement);
-            });
-            
-            // Add event listeners to delete buttons
-            document.querySelectorAll('.note-item .delete-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const index = parseInt(this.dataset.index);
-                    deleteNote(index);
-                });
-            });
-        }
-        
-        document.getElementById('save-note-btn').addEventListener('click', function() {
-            const title = document.getElementById('note-title').value.trim();
-            const content = document.getElementById('note-content').value.trim();
-            
-            if (!title || !content) {
-                alert('Please enter both title and content for your note');
-                return;
-            }
-            
-            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            notes.push({ title, content, date: new Date().toISOString() });
-            localStorage.setItem('notes', JSON.stringify(notes));
-            
-            // Clear form
-            document.getElementById('note-title').value = '';
-            document.getElementById('note-content').value = '';
-            
-            // Reload notes
-            loadNotes();
-        });
-        
-        function deleteNote(index) {
-            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-            notes.splice(index, 1);
-            localStorage.setItem('notes', JSON.stringify(notes));
-            loadNotes();
-        }
-        
-        // Tasks functionality
-        function loadTasks() {
-            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-            const tasksList = document.getElementById('tasks-list');
-            tasksList.innerHTML = '';
-            
-            if (tasks.length === 0) {
-                tasksList.innerHTML = '<p>No tasks yet. Add one above!</p>';
-                return;
-            }
-            
-            tasks.forEach((task, index) => {
-                const taskElement = document.createElement('div');
-                taskElement.className = 'task-item';
-                taskElement.innerHTML = `
-                    <input type="checkbox" id="task-${index}" ${task.completed ? 'checked' : ''}>
-                    <span class="task-text ${task.completed ? 'completed' : ''}">${task.text}</span>
-                    <button class="delete-btn" data-index="${index}">Delete</button>
-                `;
-                tasksList.appendChild(taskElement);
-            });
-            
-            // Add event listeners to checkboxes and delete buttons
-            document.querySelectorAll('#tasks-list input[type="checkbox"]').forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const index = parseInt(this.id.split('-')[1]);
-                    toggleTaskCompletion(index);
-                });
-            });
-            
-            document.querySelectorAll('#tasks-list .delete-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const index = parseInt(this.dataset.index);
-                    deleteTask(index);
-                });
-            });
-        }
-        
-        document.getElementById('add-task-btn').addEventListener('click', function() {
-            const taskText = document.getElementById('task-input').value.trim();
-            
-            if (!taskText) {
-                alert('Please enter a task');
-                return;
-            }
-            
-            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-            tasks.push({ text: taskText, completed: false, date: new Date().toISOString() });
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            
-            // Clear input
-            document.getElementById('task-input').value = '';
-            
-            // Reload tasks
-            loadTasks();
-        });
-        
-        function toggleTaskCompletion(index) {
-            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-            tasks[index].completed = !tasks[index].completed;
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            loadTasks();
-        }
-        
-        function deleteTask(index) {
-            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-            tasks.splice(index, 1);
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            loadTasks();
-        }
-    </script>
+    <script src="/static/script.js"></script>
+    
 </body>
 </html>

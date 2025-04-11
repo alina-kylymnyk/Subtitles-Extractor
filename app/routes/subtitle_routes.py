@@ -13,6 +13,14 @@ templates = Jinja2Templates(directory="templates")
 async def process_video(request: Request, video_url: str = Form(...)):
     subtitle_text, error_message = SubtitleService.extract_subtitles(video_url)
 
+    # Add more descriptive error messages if there's an issue
+    if error_message:
+        error_message = (
+            f"Error processing video. Please check the video URL and try again."
+        )
+    else:
+        error_message = None  # No error, proceed with the subtitle text
+
     return templates.TemplateResponse(
         "index.html",
         {
@@ -28,11 +36,20 @@ async def process_video(request: Request, video_url: str = Form(...)):
 async def download_subtitles(video_url: str = Form(...)):
     subtitle_text, error_message = SubtitleService.extract_subtitles(video_url)
 
+    # More detailed error handling
     if error_message:
+        error_message = f"Failed to extract subtitles for the video at URL: {video_url}. Please verify the URL and ensure the video is accessible and in a supported format."
+
         raise HTTPException(status_code=400, detail=error_message)
 
     # Create a temporary file for download
-    path, filename = SubtitleService.create_subtitles_file(subtitle_text, video_url)
+    try:
+        path, filename = SubtitleService.create_subtitles_file(subtitle_text, video_url)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while creating the subtitle file: {str(e)}. Please try again later.",
+        )
 
     # Return the file as a download
     return FileResponse(
