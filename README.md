@@ -16,7 +16,7 @@ An application that allows users to extract subtitles from YouTube videos, trans
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/subtitles-extractor.git
+   git clone https://github.com/alina-kylymnyk/subtitles-extractor.git
    cd subtitles-extractor
    ```
 
@@ -48,7 +48,7 @@ An application that allows users to extract subtitles from YouTube videos, trans
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/subtitles-extractor.git
+   git clone https://github.com/alina-kylymnyk/subtitles-extractor.git
    cd subtitles-extractor
    ```
 
