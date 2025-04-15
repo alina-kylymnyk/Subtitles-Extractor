@@ -7,12 +7,77 @@ import yt_dlp
 
 class SubtitleService:
     @staticmethod
-    def extract_subtitles(video_url: str) -> tuple[str, str]:
+    def get_available_languages(video_url: str) -> tuple[dict, str]:
         """
-        Extract subtitles from a YouTube video URL.
+        Get available subtitle languages for a YouTube video URL.
 
         Args:
             video_url: URL of the YouTube video
+
+        Returns:
+            tuple: (languages_dict, error_message)
+                languages_dict: Dictionary with language codes as keys and language names as values
+                error_message: Error message if any
+        """
+        try:
+            ydl_opts = {
+                "listsubtitles": True,
+                "skip_download": True,
+            }
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(video_url, download=False)
+
+            available_subtitles = info.get("subtitles", {})
+
+            if not available_subtitles:
+                return {}, "No subtitles are available for this video."
+
+            # Language codes mapping (this is a simplified version, could be expanded)
+            language_names = {
+                "en": "English",
+                "es": "Spanish",
+                "fr": "French",
+                "de": "German",
+                "it": "Italian",
+                "pt": "Portuguese",
+                "ru": "Russian",
+                "ja": "Japanese",
+                "ko": "Korean",
+                "zh": "Chinese",
+                "ar": "Arabic",
+                "hi": "Hindi",
+                # Add more language codes as needed
+            }
+
+            # Create a dictionary of available languages with their names
+            languages_dict = {}
+            for lang_code in available_subtitles.keys():
+                languages_dict[lang_code] = language_names.get(
+                    lang_code, lang_code.upper()
+                )
+
+            return languages_dict, None
+
+        except yt_dlp.DownloadError as e:
+            return (
+                {},
+                f"An error occurred while extracting video info: {str(e)}. Please check the video URL.",
+            )
+        except Exception as e:
+            return (
+                {},
+                f"An unexpected error occurred: {str(e)}. Please try again later.",
+            )
+
+    @staticmethod
+    def extract_subtitles(video_url: str, language_code: str = "en") -> tuple[str, str]:
+        """
+        Extract subtitles from a YouTube video URL in the specified language.
+
+        Args:
+            video_url: URL of the YouTube video
+            language_code: Language code for subtitles (default: "en" for English)
 
         Returns:
             tuple: (subtitle_text, error_message)
@@ -20,18 +85,18 @@ class SubtitleService:
         try:
             ydl_opts = {
                 "writesubtitles": True,
-                "subtitleslangs": ["en"],
+                "subtitleslangs": [language_code],
                 "skip_download": True,
             }
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(video_url, download=False)
 
-            subtitles = info.get("subtitles", {}).get("en", [])
+            subtitles = info.get("subtitles", {}).get(language_code, [])
             if not subtitles:
                 return (
                     None,
-                    "No subtitles are available for this video. Please try another video.",
+                    f"No subtitles in {language_code} are available for this video. Please try another language.",
                 )
 
             subtitle_url = subtitles[0]["url"]
@@ -60,7 +125,7 @@ class SubtitleService:
             return (
                 subtitle_text.strip(),
                 None,
-            )  # Return subtitle text and no error message
+            )
 
         except yt_dlp.DownloadError as e:
             return (
@@ -87,13 +152,16 @@ class SubtitleService:
             )
 
     @staticmethod
-    def create_subtitles_file(subtitle_text: str, video_url: str) -> tuple[str, str]:
+    def create_subtitles_file(
+        subtitle_text: str, video_url: str, language_code: str = "en"
+    ) -> tuple[str, str]:
         """
         Create a temporary subtitle file and return its path
 
         Args:
             subtitle_text: The subtitle text content
             video_url: Original video URL for naming
+            language_code: Language code for naming the file
 
         Returns:
             tuple: (file_path, filename)
@@ -109,6 +177,6 @@ class SubtitleService:
             if "v=" in video_url
             else "subtitles"
         )
-        filename = f"{video_id}_subtitles.txt"
+        filename = f"{video_id}_{language_code}_subtitles.txt"
 
         return path, filename

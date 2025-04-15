@@ -16,19 +16,38 @@
                 <p>Extract, translate, and take notes while learning with videos</p>
             </div>
             
-            <!-- Single form to enter video URL -->
+            <!-- Video URL form -->
             <div class="card">
                 <div class="form-group">
-                    <form action="/process_video/" method="post">
+                    <form id="video-url-form" action="/check_languages/" method="post">
                         <label for="video_url">Enter YouTube Video URL:</label>
                         <input type="text" id="video_url" name="video_url" required value="{{ video_url if video_url else '' }}" placeholder="https://www.youtube.com/watch?v=...">
-                        <button type="submit">Extract Subtitles</button>
+                        <button type="submit" id="check-subtitles-btn">Check Available Subtitles</button>
                     </form>
                 </div>
             </div>
             
             {% if error_message %}
                 <p class="error">{{ error_message }}</p>
+            {% endif %}
+
+            <!-- Language selection will appear here when languages are available -->
+            {% if languages %}
+            <div class="card" id="language-selection">
+                <h3>Available Subtitle Languages</h3>
+                <form action="/process_video/" method="post" id="language-selection-form">
+                    <input type="hidden" name="video_url" value="{{ video_url }}">
+                    <div class="language-options">
+                        <label for="language_code">Select Language:</label>
+                        <select name="language_code" id="language_code" required>
+                            {% for code, name in languages.items() %}
+                                <option value="{{ code }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" id="extract-subtitles-btn">Extract Subtitles</button>
+                </form>
+            </div>
             {% endif %}
 
             {% if subtitle_text %}
@@ -38,12 +57,16 @@
                         <p>{{ subtitle_text }}</p>
                     </div>
                     
-                    <!-- Download button appears only when subtitles are available -->
-                    <div class="download-btn">
+                    <!-- Actions for subtitle text -->
+                    <div class="subtitle-actions">
                         <form action="/download_subtitles/" method="post">
                             <input type="hidden" name="video_url" value="{{ video_url }}">
-                            <button type="submit">Download Subtitles</button>
+                            <input type="hidden" name="language_code" value="{{ language_code }}">
+                            <button type="submit" class="btn-success">Download Subtitles</button>
                         </form>
+                        
+                        <button id="copy-to-translator" class="btn-primary">Copy to Translator</button>
+                        <button id="create-note-from-subtitles" class="btn-purple">Create Note from Subtitles</button>
                     </div>
                 </div>
             {% endif %}
@@ -91,16 +114,18 @@
             </div>
         </div>
         
-       <!-- Sidebar for translator -->
+<!-- The updated translator section for your HTML file -->
+<!-- Replace the existing sidebar translator section with this code -->
+
 <div class="sidebar">
     <h2>Translator</h2>
 
-    <!-- Translator form -->
+    <!-- Translator form with loading indicator -->
     <div class="card">
         <div class="form-group">
             <form action="javascript:void(0);" id="translator-form">
                 <!-- Input Language Selection -->
-                <label for="input-language">Select Input Language:</label>
+                <label for="input-language">Source Language:</label>
                 <select id="input-language" name="input-language" required>
                     <option value="en">English</option>
                     <option value="es">Spanish</option>
@@ -110,7 +135,7 @@
                     <option value="pt">Portuguese</option>
                     <option value="ru">Russian</option>
                     <option value="ja">Japanese</option>
-                    <option value="zh-cn">Chinese (Simplified)</option>
+                    <option value="zh">Chinese</option>
                     <option value="ar">Arabic</option>
                     <option value="hi">Hindi</option>
                     <option value="ko">Korean</option>
@@ -122,7 +147,7 @@
                     <option value="vi">Vietnamese</option>
                 </select>
 
-                <label for="target-language">Select Target Language:</label>
+                <label for="target-language">Target Language:</label>
                 <select id="target-language" name="target-language" required>
                     <option value="uk">Ukrainian</option>
                     <option value="en">English</option>
@@ -133,7 +158,7 @@
                     <option value="pt">Portuguese</option>
                     <option value="ru">Russian</option>
                     <option value="ja">Japanese</option>
-                    <option value="zh-cn">Chinese (Simplified)</option>
+                    <option value="zh">Chinese</option>
                     <option value="ar">Arabic</option>
                     <option value="hi">Hindi</option>
                     <option value="ko">Korean</option>
@@ -147,6 +172,10 @@
                 <label for="english-text">Enter text:</label>
                 <textarea id="english-text" name="text" required placeholder="Type or paste text to translate..."></textarea>
                 <button type="submit" id="translate-btn">Translate</button>
+                <div id="translation-loading" class="loading-indicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <span>Translating...</span>
+                </div>
             </form>
         </div>
 
@@ -156,9 +185,14 @@
             <p id="translated-text"></p>
             <button id="save-btn" class="btn-success">Save to Vocabulary</button>
         </div>
+        
+        <!-- Error message display -->
+        <div id="translation-error" style="display: none;" class="error-message">
+            <p id="error-text"></p>
+        </div>
     </div>
 
-    <!-- Vocabulary section -->
+    <!-- Vocabulary section (unchanged) -->
     <div class="card">
         <h2>My Vocabulary</h2>
         <button id="refresh-vocabulary" class="btn-purple">Refresh Vocabulary</button>
@@ -167,10 +201,6 @@
         </div>
     </div>
 </div>
-
-    </div>
-    
     <script src="/static/script.js"></script>
-    
 </body>
 </html>

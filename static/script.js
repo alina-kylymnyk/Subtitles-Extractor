@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadTasks();
     
     // Attach event listener for the translator form
+
     document.getElementById('translator-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (response.ok) {
+                // Display the translated text directly from the response
                 document.getElementById('translated-text').textContent = data.translated;
                 document.getElementById('translation-result').style.display = 'block';
             } else {
@@ -54,9 +56,9 @@ document.addEventListener('DOMContentLoaded', function() {
             translateBtn.textContent = originalBtnText;
             translateBtn.disabled = false;
         }
-    });
-
-    // Attach event listener for the save button
+    });   
+    
+    // Attach event listener for the save translation button
     document.getElementById('save-btn').addEventListener('click', function() {
         const originalText = document.getElementById('english-text').value.trim();
         const translatedText = document.getElementById('translated-text').textContent.trim();
@@ -121,13 +123,85 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1500);
     });
     
+    // Check for Copy to Translator button
+    const copyToTranslatorBtn = document.getElementById('copy-to-translator');
+    if (copyToTranslatorBtn) {
+        copyToTranslatorBtn.addEventListener('click', function() {
+            if (document.querySelector('.subtitle-content p')) {
+                const subtitleText = document.querySelector('.subtitle-content p').textContent;
+                document.getElementById('english-text').value = subtitleText;
+                document.getElementById('english-text').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    }
+    
+    // Check for Create Note from Subtitles button
+    const createNoteBtn = document.getElementById('create-note-from-subtitles');
+    if (createNoteBtn) {
+        createNoteBtn.addEventListener('click', function() {
+            if (document.querySelector('.subtitle-content p')) {
+                const subtitleText = document.querySelector('.subtitle-content p').textContent;
+                const videoUrl = document.getElementById('video_url').value;
+                
+                // Create a title based on video URL
+                const videoId = videoUrl.includes('v=') ? 
+                    videoUrl.split('v=')[1].split('&')[0] : 
+                    'YouTube Video';
+                
+                document.getElementById('note-title').value = `Notes for video: ${videoId}`;
+                document.getElementById('note-content').value = subtitleText;
+                
+                // Switch to notes tab and scroll there
+                document.querySelector('.tab[data-tab="notes"]').click();
+                document.getElementById('note-title').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    }
+    
+    // Video URL form - show loading state and perform validation
+    const videoUrlForm = document.getElementById('video-url-form');
+    if (videoUrlForm) {
+        videoUrlForm.addEventListener('submit', function(e) {
+            const videoUrl = document.getElementById('video_url').value.trim();
+            if (!videoUrl) {
+                e.preventDefault();
+                alert('Please enter a YouTube URL');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = document.getElementById('check-subtitles-btn');
+            if (submitBtn) {
+                submitBtn.textContent = 'Checking...';
+                submitBtn.disabled = true;
+            }
+            
+            // Form will be submitted normally
+        });
+    }
+
+    // Language selection form - show loading state
+    const languageForm = document.getElementById('language-selection-form');
+    if (languageForm) {
+        languageForm.addEventListener('submit', function() {
+            const submitBtn = document.getElementById('extract-subtitles-btn');
+            if (submitBtn) {
+                submitBtn.textContent = 'Extracting...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+    
     // Add keyboard shortcut for translation (Ctrl+Enter)
-    document.getElementById('english-text').addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.key === 'Enter') {
-            e.preventDefault();
-            document.getElementById('translate-btn').click();
-        }
-    });
+    const textToTranslate = document.getElementById('text-to-translate');
+    if (textToTranslate) {
+        textToTranslate.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('translate-btn').click();
+            }
+        });
+    }
     
     // Attach tab functionality
     document.querySelectorAll('.tab').forEach(tab => {
@@ -189,6 +263,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadVocabulary() {
     const vocabulary = JSON.parse(localStorage.getItem('vocabulary') || '[]');
     const vocabularyList = document.getElementById('vocabulary-list');
+    
+    if (!vocabularyList) return;
+    
     vocabularyList.innerHTML = '';
     
     if (vocabulary.length === 0) {
@@ -239,6 +316,7 @@ function getLanguageName(code) {
         'ru': 'Russian',
         'ja': 'Japanese',
         'zh-cn': 'Chinese',
+        'zh': 'Chinese',
         'ar': 'Arabic',
         'hi': 'Hindi',
         'ko': 'Korean',
@@ -266,6 +344,9 @@ function deleteVocabularyItem(id) {
 function loadNotes() {
     const notes = JSON.parse(localStorage.getItem('notes') || '[]');
     const notesList = document.getElementById('notes-list');
+    
+    if (!notesList) return;
+    
     notesList.innerHTML = '';
     
     if (notes.length === 0) {
@@ -310,6 +391,9 @@ function deleteNote(index) {
 function loadTasks() {
     const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
     const tasksList = document.getElementById('tasks-list');
+    
+    if (!tasksList) return;
+    
     tasksList.innerHTML = '';
     
     if (tasks.length === 0) {
