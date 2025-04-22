@@ -180,3 +180,64 @@ class SubtitleService:
         filename = f"{video_id}_{language_code}_subtitles.txt"
 
         return path, filename
+
+    @staticmethod
+    def get_video_title(video_url: str) -> str:
+        """
+        Get the title of a YouTube video from its URL.
+
+        Args:
+            video_url: YouTube video URL or ID
+
+        Returns:
+            str: Video title
+
+        Raises:
+            Exception: If an error occurs while fetching the video title
+        """
+        try:
+            # Check if the input is a full URL or just a video ID
+            if "youtube.com" in video_url or "youtu.be" in video_url:
+                # It's already a URL, use it directly
+                url_to_use = video_url
+
+                # Extract video ID for fallback title if needed
+                if "v=" in video_url:
+                    video_id = video_url.split("v=")[-1].split("&")[0]
+                elif "youtu.be/" in video_url:
+                    video_id = video_url.split("youtu.be/")[-1].split("?")[0]
+                else:
+                    video_id = "unknown"
+            else:
+                # Assume it's just a video ID, construct the URL
+                video_id = video_url
+                url_to_use = f"https://www.youtube.com/watch?v={video_id}"
+
+            # Use yt-dlp to get video info including title
+            ydl_opts = {
+                "quiet": True,
+                "no_warnings": True,
+                "skip_download": True,
+                "extract_flat": True,
+            }
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url_to_use, download=False)
+
+            # Return the video title
+            video_title = info.get("title", f"YouTube Video ({video_id})")
+            return video_title
+
+        except yt_dlp.DownloadError as e:
+            # Handle YouTube-specific errors
+            error_message = str(e)
+            if "Private video" in error_message:
+                return f"Private YouTube Video ({video_id})"
+            elif "This video is unavailable" in error_message:
+                return f"Unavailable YouTube Video ({video_id})"
+            else:
+                # Return a generic title with the video ID
+                return f"YouTube Video ({video_id})"
+        except Exception as e:
+            # For any other errors, return a generic title
+            return f"YouTube Video ({video_id})"

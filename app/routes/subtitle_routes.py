@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Form, HTTPException, Body
+from fastapi import APIRouter, Request, Form, HTTPException, Body, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 import os
@@ -164,3 +164,23 @@ async def download_subtitles(
         filename=filename,
         background=lambda: os.remove(path),  # Delete the temporary file after download
     )
+
+
+@router.get("/get_video_title/")
+async def get_video_title(video_url: str = Query(...)):
+    """
+    Fetch the title of a YouTube video by its URL.
+
+    Args:
+        video_url: The YouTube video URL
+
+    Returns:
+        JSON object with the video title
+    """
+    try:
+        video_title = SubtitleService.get_video_title(video_url)
+        return {"title": video_title}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error fetching video title: {str(e)}"
+        )

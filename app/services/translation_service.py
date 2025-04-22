@@ -26,6 +26,13 @@ class TranslationService:
                     status_code=400, detail="Input text cannot be empty."
                 )
 
+            # Check text length
+            if len(text) > 5000:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Please, try to enter fewer words - the translator limits are 5000 characters.",
+                )
+
             # Check if source language code is valid
             if source_language not in LANGUAGES:
                 raise HTTPException(
@@ -49,5 +56,13 @@ class TranslationService:
 
             return {"original": text, "translated": translation.text}
 
+        except TypeError as e:
+            # Specific handling for the NoneType error
+            if "NoneType" in str(e):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Please, try to enter fewer words - the translator limits are 5000 characters.",
+                )
+            raise HTTPException(status_code=500, detail=f"Error translating text: {e}")
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error translating text: {e}")
